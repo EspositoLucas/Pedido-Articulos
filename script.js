@@ -19,6 +19,7 @@ function showMessage(text, type = 'success') {
 function createRowHtml(data = {}) {
     const article = data.article || '';
     const details = data.details || '';
+    const cliente = data.cliente || '';
     const imgSrc = data.imgSrc || 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto';
     const sizes = data.sizes || { '35': '', '36': '', '37': '', '38': '', '39': '', '40': '', '41': '' };
     const total = data.total || 0;
@@ -33,6 +34,7 @@ function createRowHtml(data = {}) {
         <tr class="border-b border-gray-200 hover:bg-gray-50 order-row">
             <td class="py-2 px-2 sm:py-3 sm:px-4"><textarea rows="3" class="article-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Ej: 4375 SUELA GRUPON NATURAL">${article}</textarea></td>
             <td class="py-2 px-2 sm:py-3 sm:px-4 details-cell"><textarea rows="5" class="details-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y" placeholder="* HORMA: ...&#10;* ARRIMADO: ...&#10;* TACO: ...">${details}</textarea></td>
+            <td class="py-2 px-2 sm:py-3 sm:px-4"><textarea rows="3" class="cliente-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Nombre Cliente">${cliente}</textarea></td>
             <td class="py-2 px-2 sm:py-3 sm:px-4">
                 <input type="file" accept="image/*" class="image-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" onchange="previewImage(event)">
                 <img src="${imgSrc}" alt="Previsualización" class="preview-image mt-2 rounded-md" data-imgsrc="${imgSrc}">
@@ -162,6 +164,7 @@ function saveOrder() {
     rows.forEach(row => {
         const articleInput = row.querySelector('.article-input');
         const detailsInput = row.querySelector('.details-input');
+        const clienteInput = row.querySelector('.cliente-input');
         const previewImage = row.querySelector('.preview-image');
         const sizeInputs = row.querySelectorAll('.size-input');
         const totalOutput = row.querySelector('.total-output');
@@ -176,6 +179,7 @@ function saveOrder() {
         orderData.push({
             article: articleInput instanceof HTMLTextAreaElement ? articleInput.value : '',
             details: detailsInput instanceof HTMLTextAreaElement ? detailsInput.value : '',
+            cliente: clienteInput instanceof HTMLTextAreaElement ? clienteInput.value : '',
             imgSrc: previewImage instanceof HTMLImageElement ? previewImage.dataset.imgsrc || previewImage.src : 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto',
             sizes: sizes,
             total: totalOutput instanceof HTMLInputElement ? totalOutput.value : 0
