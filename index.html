@@ -13,24 +13,28 @@
 <body class="bg-gray-100 p-4 md:p-8">
 
     <div class="container mx-auto max-w-6xl bg-white p-6 rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-6 text-center text-gray-700">Crear/Modificar Pedido</h1>
+        <h1 class="text-2xl font-bold mb-4 text-center text-gray-700">Pedido de Articulos</h1>
 
-        <div class="table-container rounded-lg border border-gray-200">
+        <div class="mb-4">
+            <input type="text" id="filter-input" oninput="filterTable()" placeholder="Buscar por Artículo..." class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="table-container rounded-lg border border-gray-200 overflow-x-auto">
             <table class="w-full min-w-[800px]" id="order-table">
                 <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
                     <tr>
-                        <th class="py-3 px-4">Artículo</th>
-                        <th class="py-3 px-4">Detalles</th>
-                        <th class="py-3 px-4">Foto</th>
-                        <th class="py-3 px-2 w-16">35</th>
-                        <th class="py-3 px-2 w-16">36</th>
-                        <th class="py-3 px-2 w-16">37</th>
-                        <th class="py-3 px-2 w-16">38</th>
-                        <th class="py-3 px-2 w-16">39</th>
-                        <th class="py-3 px-2 w-16">40</th>
-                        <th class="py-3 px-2 w-16">41</th>
-                        <th class="py-3 px-4 w-20">Total</th>
-                        <th class="py-3 px-2 w-10 actions-col"></th>
+                        <th class="py-2 px-2 sm:py-3 sm:px-4">Artículo</th>
+                        <th class="py-2 px-2 sm:py-3 sm:px-4">Detalles</th>
+                        <th class="py-2 px-2 sm:py-3 sm:px-4">Foto</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">35</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">36</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">37</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">38</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">39</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">40</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-12">41</th>
+                        <th class="py-2 px-2 sm:py-3 sm:px-4 w-16">Total</th>
+                        <th class="py-2 px-1 sm:py-3 sm:px-2 w-10 actions-col"></th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-sm" id="order-rows">
@@ -38,15 +42,18 @@
             </table>
         </div>
 
-        <div class="mt-6 flex flex-wrap justify-center gap-4">
-            <button id="add-row-btn" onclick="addRow()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out">
+        <div class="mt-6 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4">
+            <button id="add-row-btn" onclick="addRow()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out w-full sm:w-auto">
                 Añadir Artículo
             </button>
-            <button id="save-order-btn" onclick="saveOrder()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out">
+            <button id="save-order-btn" onclick="saveOrder()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out w-full sm:w-auto">
                 Guardar Cambios
             </button>
-            <button id="export-image-btn" onclick="saveAsImage(this)" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out">
-                Guardar como Imagen
+            <button id="export-image-btn" onclick="saveAsImage(this)" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out w-full sm:w-auto">
+                Exportar
+            </button>
+            <button id="clear-all-btn" onclick="confirmClearAll()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out w-full sm:w-auto">
+                Borrar Todo
             </button>
         </div>
 

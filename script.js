@@ -26,20 +26,20 @@ function createRowHtml(data = {}) {
     
     for (let i = 35; i <= 41; i++) {
         const sizeValue = sizes[String(i)] || '';
-        sizeInputsHtml += `<td class="py-3 px-2"><input type="number" min="0" value="${sizeValue}" class="w-12 p-1 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 size-input" data-size="${i}" oninput="calculateTotal(this)"></td>`;
+        sizeInputsHtml += `<td class="py-2 px-1 sm:py-3 sm:px-2"><input type="number" min="0" value="${sizeValue}" class="w-12 p-1 border border-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 size-input" data-size="${i}" oninput="calculateTotal(this)"></td>`;
     }
     
     return `
         <tr class="border-b border-gray-200 hover:bg-gray-50 order-row">
-            <td class="py-3 px-4"><textarea rows="3" class="article-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Ej: 4375 SUELA GRUPON NATURAL">${article}</textarea></td>
-            <td class="py-3 px-4 details-cell"><textarea rows="5" class="details-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y" placeholder="* HORMA: ...&#10;* ARRIMADO: ...&#10;* TACO: ...">${details}</textarea></td>
-            <td class="py-3 px-4">
+            <td class="py-2 px-2 sm:py-3 sm:px-4"><textarea rows="3" class="article-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Ej: 4375 SUELA GRUPON NATURAL">${article}</textarea></td>
+            <td class="py-2 px-2 sm:py-3 sm:px-4 details-cell"><textarea rows="5" class="details-input w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y" placeholder="* HORMA: ...&#10;* ARRIMADO: ...&#10;* TACO: ...">${details}</textarea></td>
+            <td class="py-2 px-2 sm:py-3 sm:px-4">
                 <input type="file" accept="image/*" class="image-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" onchange="previewImage(event)">
                 <img src="${imgSrc}" alt="Previsualización" class="preview-image mt-2 rounded-md" data-imgsrc="${imgSrc}">
             </td>
             ${sizeInputsHtml}
-            <td class="py-3 px-4"><input type="number" readonly value="${total}" class="total-output w-16 p-1 border-0 bg-gray-100 rounded-md text-center font-semibold"></td>
-            <td class="py-3 px-2 actions-col"><button onclick="deleteRow(this)" class="text-red-500 hover:text-red-700 text-xl font-bold" title="Eliminar fila">&times;</button></td>
+            <td class="py-2 px-2 sm:py-3 sm:px-4"><input type="number" readonly value="${total}" class="total-output w-16 p-1 border-0 bg-gray-100 rounded-md text-center font-semibold"></td>
+            <td class="py-2 px-1 sm:py-3 sm:px-2 actions-col"><button onclick="deleteRow(this)" class="text-red-500 hover:text-red-700 text-xl font-bold" title="Eliminar fila">&times;</button></td>
         </tr>`;
 }
 
@@ -53,6 +53,46 @@ function deleteRow(buttonElement) {
     const row = buttonElement.closest('.order-row');
     if (row) {
         row.remove();
+        // Optional: Immediately save after deleting a row if desired
+        // saveOrder();
+    }
+}
+
+// --- New Filter Function ---
+function filterTable() {
+    const filterInput = document.getElementById('filter-input');
+    const filterText = filterInput ? filterInput.value.toLowerCase() : '';
+    const rows = tableBody ? tableBody.querySelectorAll('.order-row') : [];
+
+    rows.forEach(row => {
+        const articleTextarea = row.querySelector('.article-input');
+        const articleText = articleTextarea instanceof HTMLTextAreaElement ? articleTextarea.value.toLowerCase() : '';
+        
+        if (articleText.includes(filterText)) {
+            row.style.display = ''; // Show row
+        } else {
+            row.style.display = 'none'; // Hide row
+        }
+    });
+}
+
+// --- New Clear All Functions ---
+function clearAllRows() {
+    if (tableBody) {
+        tableBody.innerHTML = ''; // Clear all rows from the table body
+        localStorage.removeItem(STORAGE_KEY); // Remove saved data
+        addRow(); // Add a single blank row back
+        showMessage('Todos los artículos han sido borrados.');
+        // Clear filter input as well
+        const filterInput = document.getElementById('filter-input');
+        if(filterInput) filterInput.value = '';
+    }
+}
+
+function confirmClearAll() {
+    // Use confirm() for a simple confirmation dialog
+    if (confirm('¿Estás seguro de que quieres borrar todos los artículos? Esta acción no se puede deshacer.')) {
+        clearAllRows();
     }
 }
 
@@ -67,26 +107,33 @@ function previewImage(event) {
     
     reader.onloadend = function () {
         const resultStr = reader.result?.toString() || '';
-        preview.src = resultStr;
         preview.dataset.imgsrc = resultStr;
+        preview.src = resultStr;
     }
     
     if (file) {
         if (file.size > 5 * 1024 * 1024) {
             showMessage('La imagen es demasiado grande (máx 5MB).', 'error');
             input.value = '';
-            preview.src = preview.dataset.imgsrc || 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto';
+            const placeholder = 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto';
+            preview.src = placeholder;
+            preview.dataset.imgsrc = placeholder;
             return;
         }
         reader.readAsDataURL(file);
     } else {
-        preview.src = 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto';
-        preview.dataset.imgsrc = preview.src;
+        const placeholder = 'https://placehold.co/100x100/e2e8f0/adb5bd?text=Foto';
+        preview.src = placeholder;
+        preview.dataset.imgsrc = placeholder;
     }
     
     preview.onerror = function() {
-        preview.src = 'https://placehold.co/100x100/ff0000/ffffff?text=Error';
-        preview.dataset.imgsrc = preview.src;
+        console.error("Error loading image preview.");
+        const errorPlaceholder = 'https://placehold.co/100x100/ff0000/ffffff?text=Error';
+        if (!preview.dataset.imgsrc || preview.dataset.imgsrc === preview.src) {
+             preview.dataset.imgsrc = errorPlaceholder;
+        }
+        preview.src = errorPlaceholder;
     };
 }
 
@@ -176,24 +223,38 @@ function loadOrder() {
 function prepareTableForExport(isExporting) {
     const table = document.getElementById('order-table');
     if (!table) return;
-    
+
     const fileInputs = table.querySelectorAll('.image-input');
-    const deleteButtons = table.querySelectorAll('.actions-col button');
-    
+    // Select the entire actions column (header and cells)
+    const actionsColumnElements = table.querySelectorAll('.actions-col');
+
     // Ocultar/Mostrar elementos
     fileInputs.forEach(input => {
-        if(input instanceof HTMLElement) input.style.display = isExporting ? 'none' : '';
+        if (input instanceof HTMLElement) input.style.display = isExporting ? 'none' : '';
     });
-    
-    deleteButtons.forEach(button => {
-        if(button instanceof HTMLElement) button.style.display = isExporting ? 'none' : '';
+
+    // Hide/show the entire actions column
+    actionsColumnElements.forEach(el => {
+        if (el instanceof HTMLElement) el.style.display = isExporting ? 'none' : ''; // Use '' to restore default display
     });
-    
+
     // Quitar/Restaurar bordes y fondos de inputs/textarea
     table.querySelectorAll('textarea, input:not([type=file])').forEach(el => {
         if (el instanceof HTMLElement) {
+            // Keep existing logic for borders and background
             el.style.border = isExporting ? 'none' : '';
-            el.style.backgroundColor = isExporting ? 'transparent' : '';
+            // Ensure background is transparent only during export
+            const originalBg = el.dataset.originalBg || ''; // Store original background if needed, default to ''
+            if (isExporting) {
+                if (!el.dataset.originalBg) { // Store only if not already stored
+                    el.dataset.originalBg = el.style.backgroundColor;
+                }
+                el.style.backgroundColor = 'transparent';
+            } else {
+                 // Restore original or default background
+                el.style.backgroundColor = originalBg;
+                 delete el.dataset.originalBg; // Clean up dataset attribute
+            }
         }
     });
 }
@@ -202,17 +263,17 @@ function prepareTableForExport(isExporting) {
 function downloadFile(blob, defaultFilename) {
     // Crear una URL temporal para el Blob
     const url = URL.createObjectURL(blob);
-    
+
     // Crear un enlace temporal
     const link = document.createElement('a');
     link.href = url;
     link.download = defaultFilename; // Nombre de archivo sugerido
-    
+
     // Añadir, simular clic y remover el enlace
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Liberar la memoria de la URL temporal (importante)
     setTimeout(() => URL.revokeObjectURL(url), 100);
 }
@@ -232,7 +293,9 @@ async function saveAsImage(button) {
         const canvas = await html2canvas(tableElement, {
             scale: 2,
             useCORS: true,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            // Attempt to ignore the hidden column elements during rendering
+            ignoreElements: (element) => element.classList.contains('actions-col')
         });
         prepareTableForExport(false); // Restaurar tabla
 
@@ -257,4 +320,8 @@ async function saveAsImage(button) {
 }
 
 // --- Inicialización ---
-document.addEventListener('DOMContentLoaded', loadOrder);
+document.addEventListener('DOMContentLoaded', () => {
+    loadOrder();
+    // Optional: Apply filter initially if needed (e.g., if filter value was saved)
+    // filterTable();
+});
